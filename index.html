@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Verification</title>
+<style>
+body { font-family: sans-serif; text-align: center; margin-top: 50px; background:#f0f2f5;}
+h2 { color:#333; }
+.slider-container { margin: 30px auto; width: 300px; }
+input[type=range] { width: 100%; }
+button { padding:10px 20px; font-size:16px; cursor:pointer; margin-top:20px; }
+.success { color:green; font-weight:bold; margin-top:20px; display:none; }
+</style>
+</head>
+<body>
+
+<h2>Verify You're Human</h2>
+<p>Slide to verify:</p>
+
+<div class="slider-container">
+  <input type="range" min="0" max="100" value="0" id="slider">
+</div>
+<button onclick="checkSlider()">Verify</button>
+
+<p class="success" id="successMsg">Verification Successful! Redirecting...</p>
+
+<script>
+// Get redirect URL from query
+function getRedirectURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('redirect') || 'https://example.com';
+}
+
+// Generate fake token
+function generateToken(length = 10) {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let token = "";
+    for(let i=0;i<length;i++) token += chars[Math.floor(Math.random()*chars.length)];
+    return token;
+}
+
+// Check slider
+function checkSlider() {
+    const slider = document.getElementById('slider');
+    if(slider.value >= 95){ // human passed
+        const token = generateToken();
+        const redirectURL = getRedirectURL();
+        document.getElementById('successMsg').style.display = 'block';
+        setTimeout(()=>{
+            window.location.href = `${redirectURL}?auth=${token}`;
+        }, 1000);
+    } else {
+        alert('Please slide to the end to verify!');
+    }
+}
+</script>
+
+</body>
+</html>
